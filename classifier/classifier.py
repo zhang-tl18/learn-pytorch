@@ -49,8 +49,11 @@ if __name__ == '__main__':
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 
                 'dog', 'frog', 'horse', 'ship', 'truck')
 
-    # 训练
+    # 创建模型
     net = Net()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    net.to(device)
+    print('working device:', device)
 
     # 定义损失函数和优化器
     criterion = nn.CrossEntropyLoss()
@@ -63,6 +66,7 @@ if __name__ == '__main__':
         for i, data in enumerate(trainloader, 0):
             # 获取输入数据
             inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)
             # 清空梯度缓存
             optimizer.zero_grad()
 
