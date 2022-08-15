@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
 import time
 
 class Net(nn.Module):
@@ -52,7 +53,7 @@ if __name__ == '__main__':
     # 创建模型
     net = Net()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    net.to(device)
+    net.to(device)  # net.cuda()
     print('working device:', device)
 
     # 定义损失函数和优化器
@@ -66,7 +67,7 @@ if __name__ == '__main__':
         for i, data in enumerate(trainloader, 0):
             # 获取输入数据
             inputs, labels = data
-            inputs, labels = inputs.to(device), labels.to(device)
+            inputs, labels = inputs.to(device), labels.to(device)   # inputs, labels = inputs.cuda(), labels.cuda()
             # 清空梯度缓存
             optimizer.zero_grad()
 
@@ -91,7 +92,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         for data in testloader:
             images, labels = data
-            images, labels = images.to(device), labels.to(device)
+            images, labels = images.to(device), labels.to(device)   # images, labels = images.cuda(), labels.cuda()
             outputs = net(images)
             _, predicted = torch.max(outputs, 1)
             c = (predicted == labels).squeeze()
