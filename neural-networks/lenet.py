@@ -73,7 +73,6 @@ if __name__ == '__main__':
     # 初始化网络和优化器
     network = Net()
     if torch.cuda.is_available():
-        network = nn.DataParallel(network)
         network.cuda()
     optimizer = optim.SGD(network.parameters(), lr=learning_rate, momentum=momentum)
 
@@ -114,8 +113,8 @@ if __name__ == '__main__':
                     data, target = data.cuda(), target.cuda()
                 output = network(data)
                 test_loss += F.nll_loss(output, target).item()
-                pred = output.data.max(1, keepdim=True)[1]
-                correct += pred.eq(target.data.view_as(pred)).sum()
+                pred = output.data.max(1)[1]
+                correct += (target == pred.view_as(target)).sum()
             test_loss /= len(test_loader)
             test_losses.append(test_loss)
             test_counter.append(epoch * len(train_loader.dataset))
@@ -135,14 +134,14 @@ if __name__ == '__main__':
     print('\nFinished Training! Total cost time: {}\n'.format(time.time()-start_beginning))
 
     # 保存/读取状态
-    # torch.save(network.state_dict(), './model.pth')
-    # torch.save(optimizer.state_dict(), './optimizer.pth')
-    # continued_network = Net()
-    # continued_optimizer = optim.SGD(network.parameters(), lr=learning_rate, momentum=momentum)
-    # network_state_dict = torch.load('model.pth')
-    # continued_network.load_state_dict(network_state_dict)
-    # optimizer_state_dict = torch.load('optimizer.pth')
-    # continued_optimizer.load_state_dict(optimizer_state_dict)
+    torch.save(network.state_dict(), './model.pth')
+    torch.save(optimizer.state_dict(), './optimizer.pth')
+    continued_network = Net()
+    continued_optimizer = optim.SGD(continued_network.parameters(), lr=learning_rate, momentum=momentum)
+    network_state_dict = torch.load('model.pth')
+    continued_network.load_state_dict(network_state_dict)
+    optimizer_state_dict = torch.load('optimizer.pth')
+    continued_optimizer.load_state_dict(optimizer_state_dict)
 
     # 绘制训练曲线
     fig = plt.figure()
