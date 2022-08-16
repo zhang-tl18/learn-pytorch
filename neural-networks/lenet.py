@@ -32,6 +32,7 @@ test_set = torchvision.datasets.MNIST(root='./data', train=False,
                                 download=True, transform=transform)
 test_loader = DataLoader(test_set, batch_size=batch_size_test, shuffle=True)
 
+# 展示图片
 def show_some_imgs():
     examples = iter(test_loader)
     example_data, example_targets = examples.next()
@@ -47,6 +48,7 @@ def show_some_imgs():
         plt.yticks([])
     plt.show()
 
+# 网络结构
 class Net(nn.Module):
     def __init__(self) -> None:
         super().__init__()
@@ -64,7 +66,8 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
-        return F.log_softmax(x)
+        return F.log_softmax(x, dim=1)
+
 
 if __name__ == '__main__':
     # 初始化网络和优化器
@@ -99,8 +102,6 @@ if __name__ == '__main__':
                 train_counter.append(
                     (batch_idx * 64) + ((epoch - 1) * len(train_loader.dataset))
                 )
-                torch.save(network.state_dict(), './model.pth')     # .load_state_dict(state_dict)
-                torch.save(optimizer.state_dict(), './optimizer.pth')
 
     # 测试模型
     def test(epoch):
@@ -132,6 +133,16 @@ if __name__ == '__main__':
         print('Train Epoch: {}\tCost time: {}'.format(epoch, time.time()-start))
         test(epoch)
     print('\nFinished Training! Total cost time: {}\n'.format(time.time()-start_beginning))
+
+    # 保存/读取状态
+    # torch.save(network.state_dict(), './model.pth')
+    # torch.save(optimizer.state_dict(), './optimizer.pth')
+    # continued_network = Net()
+    # continued_optimizer = optim.SGD(network.parameters(), lr=learning_rate, momentum=momentum)
+    # network_state_dict = torch.load('model.pth')
+    # continued_network.load_state_dict(network_state_dict)
+    # optimizer_state_dict = torch.load('optimizer.pth')
+    # continued_optimizer.load_state_dict(optimizer_state_dict)
 
     # 绘制训练曲线
     fig = plt.figure()
